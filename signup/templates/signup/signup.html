@@ -70,9 +70,12 @@
                 <label for="sector" class="form-label">Sector</label>
                 <select class="form-control" id="sector" name="sector" required>
                     <option value="">Seleccione</option>
-                    <!-- Opciones del menú desplegable -->
+                    {% for sector in sectores %}
+                        <option value="{{ sector.id }}">{{ sector.nombre }}</option>
+                    {% endfor %}
                 </select>
             </div>
+            
             <div class="mb-3">
                 <label for="cedula" class="form-label">Cédula</label>
                 <input type="text" class="form-control" id="cedula" name="cedula" required>

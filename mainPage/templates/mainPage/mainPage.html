@@ -123,43 +123,94 @@
                             <a class="dropdown-item" href="{% url 'chats_comprador' %}">Chats de Comprador</a>
                         </div>
                     </div>
-                    <input type="text" class="form-control" placeholder="Buscar productos, servicios y más...">
+                    <!-- Barra de búsqueda sin form -->
+                <input type="text" id="searchBox" placeholder="Buscar productos..." value="{{ request.GET.q|default_if_none:'' }}">
+
+                <script>
+                document.getElementById("searchBox").addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {  // Detecta cuando el usuario presiona Enter
+                    event.preventDefault();  // Evita que el formulario se envíe si estuviera en uno
+                    let query = this.value.trim();  // Obtiene el texto ingresado
+                    let urlParams = new URLSearchParams(window.location.search);
+            
+                if (query) {
+                    urlParams.set("q", query);  // Agrega la búsqueda a la URL
+                } else {
+                    urlParams.delete("q");  // Elimina el parámetro si está vacío
+                }
+            
+            window.location.search = urlParams.toString();  // Redirige con los filtros aplicados
+        }
+    });
+</script>
                 </div>
             </div>
         </div>
         <div class="row mt-3">
             <div class="col-md-3">
                 <div class="filter-menu">
-                    <h5>Categoría</h5>
-                    <ul>
-                        <li><a href="#" class="filter-link">Vehículos</a></li>
-                        <li><a href="#" class="filter-link">Artículos deportivos</a></li>
-                        <li><a href="#" class="filter-link">Artículos para el hogar</a></li>
-                        <li><a href="#" class="filter-link">Electrónica</a></li>
-                        <li><a href="#" class="filter-link">Ropa</a></li>
-                        <li><a href="#" class="filter-link">Entretenimiento</a></li>
-                        <li><a href="#" class="filter-link">Jardín y aire libre</a></li>
-                        <li><a href="#" class="filter-link">Juguetes</a></li>
-                        <li><a href="#" class="filter-link">Herramientas</a></li>
-                    </ul>
-                    <h5>Filtrar por:</h5>
-                    <div class="filter-option">
-                        <label for="price-range">Precio:</label>
-                        <div class="d-flex">
-                            <input type="text" id="price-min" class="form-control" placeholder="Desde" style="margin-right: 5px;">
-                            <input type="text" id="price-max" class="form-control" placeholder="Hasta">
-                        </div>
-                    </div>
-                    <div class="filter-option mt-3">
-                        <label for="condition">Condición:</label>
-                        <select id="condition" class="form-control">
-                            <option value="">Seleccione</option>
-                            <option value="new">Nuevo</option>
-                            <option value="used">Usado</option>
+                    <h5>Filtrar por...</h5>
+                <!-- Filtro de Categoría -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h6>Categoría:</h6>
+                            <form method="get" action="{% url 'mainPage' %}">
+                        <div class="form-group">
+                        <select name="categoria_id" class="form-control">
+                        <option value="">Todas</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}" {% if categoria.id == request.GET.categoria_id %}selected{% endif %}>
+                                {{ categoria.nombre_categoria }}
+                            </option>
+                        {% endfor %}
                         </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-2">Filtrar</button>
+                    </form>
+                </div>
+            </div>
+                
+        </select>
+                    <div class="filter-option">
+                        <h6>Precio:</h6>
+                        <label> Rango de Precio</label>
+                        <form method="GET">
+                            <input type="hidden" name="categoria_id" value="{{ request.GET.categoria_id }}">
+                            <input type="hidden" name="estado_id" value="{{ request.GET.estado_id }}">
+                            
+                            <label for="precio_min">Desde:</label>
+                            <input type="number" name="precio_min" step="0.01" value="{{ request.GET.precio_min }}">
+                            
+                            <label for="precio_max">Hasta:  </label>
+                            <input type="number" name="precio_max" step="0.01" value="{{ request.GET.precio_max }}">
+                            
+                            <button type="submit" class="btn btn-primary mt-2">Filtrar</button>
+                        </form>
+                    </div>
+
+                    <div class="filter-option mt-3">
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <h6>Condición:</h6>
+                                <form method="get" action="{% url 'mainPage' %}">
+                            <div class="form-group">
+                            <select name="estado_id" class="form-control">
+                            <option value="">Cualquiera</option>
+                            {% for estado in estados %}
+                                <option value="{{ estado.id }}" {% if estado.id == request.GET.estado_id %}selected{% endif %}>
+                                    {{ estado.nombre_estado }}
+                                </option>
+                            {% endfor %}
+                            </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-2">Filtrar</button>
+                        </form>
+                    </div>
+                </div>
                     </div>
                 </div>
             </div>
+
             <div class="col-md-9">
                 <h5>Productos en tu zona:</h5>
                 <!-- Aquí se listarán los productos en tu zona -->
@@ -184,6 +235,8 @@
                     {% empty %}
                         <p>No hay productos en tu zona.</p>
                     {% endfor %}
+</div>
+                    </div>
                 </div>
                 <h5 class="mt-4">Más productos:</h5>
                 <!-- Aquí se listarán más productos -->

@@ -15,6 +15,11 @@ class Estado(models.Model):
         return self.nombre_estado
 
 class Producto(models.Model):
+    VENTA_ESTADO_CHOICES = [
+        ('EnVenta', 'En venta'),
+        ('Vendido', 'Vendido'),
+    ]
+
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField()
     precio = models.DecimalField(max_digits=10, decimal_places=2)
@@ -23,7 +28,8 @@ class Producto(models.Model):
     estado = models.ForeignKey(Estado, on_delete=models.SET_NULL, null=True) 
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True)
     sector = models.CharField(max_length=100, null=True, blank=True)
-    
+    venta_estado = models.CharField(max_length=20, choices=VENTA_ESTADO_CHOICES, default='EnVenta')
+
     def save(self, *args, **kwargs):
         if not self.sector and self.usuario:
             self.sector = self.usuario.sector

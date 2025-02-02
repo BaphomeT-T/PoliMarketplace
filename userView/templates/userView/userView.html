@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Usuario- PoliMarketPlace</title>
+    <title>Usuario - PoliMarketPlace</title>
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <style>
         body {
@@ -17,11 +17,11 @@
             background-size: 750px 100px; 
             margin: 50px;
         }
-        .profile-header{
+        .profile-header {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap:20px;
+            gap: 20px;
             margin-top: 30px;
         }
         .profile-header img {
@@ -30,46 +30,45 @@
             border-radius: 50%; 
             margin-bottom: 15px; 
         }
-        .profile-header .profile-info{
+        .profile-header .profile-info {
             display: flex;
             flex-direction: column;
             gap: 5px;
         }
-
         .profile-header h1 {
             font-size: 5rem;
-            margin:0;
+            margin: 0;
             color: #2C3E50;
         }
-        .profile-header p{
+        .profile-header p {
             margin: 0;
             color: #7f8c8d;
             font-size: 1.5rem;
         }
         .profile-header .sector-label {
-            color: #1b1b1b; /* Gris más oscuro */
+            color: #1b1b1b;
             font-size: 25px;
             margin-top: 5px;
         }
-        .articles-section{
+        .articles-section {
             margin-top: 30px;
             text-align: center;
         }
-       .article-card{
-             border: none;
+        .article-card {
+            border: none;
             border-radius: 10px;
             overflow: hidden;
             background-color: #fff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
-       }
-      .article-card img{
+        }
+        .article-card img {
             width: 100%;
             height: 200px;
             object-fit: cover;
-      }
-        .article-card .card-body{
-                text-align: center;
+        }
+        .article-card .card-body {
+            text-align: center;
         }
         .icon-buttons {
             display: flex;
@@ -77,18 +76,17 @@
         }
         .icon-buttons a {
             display: inline-block;
-            width: 30px; /* Hacer los iconos más pequeños */
-            height: 30px; /* Hacer los iconos más pequeños */
+            width: 30px;
+            height: 30px;
             background-size: contain;
             background-repeat: no-repeat;
-            margin: 0 5px; /* Espaciado entre los iconos */
+            margin: 0 5px;
         }
         .action-buttons {
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-top: 20px;
-            
         }
         .action-buttons button {
             padding: 10px;
@@ -115,9 +113,7 @@
 <body>
 
     <div class="icon-buttons">
-        <a href="{% url 'mainPage' %}" style="background-image: url('{% static 'images/Close.png' %}');">
-            <i class="fas fa-user"></i>
-        </a>
+        <a href="{% url 'mainPage' %}" style="background-image: url('{% static 'images/Close.png' %}');"></a>
         <a href="#" style="background-image: url('{% static 'images/Settings.png' %}');"></a>
     </div>
     
@@ -131,6 +127,7 @@
             </div>
         </div>
     </div>
+
     <div class="row articles-section">
         <div class="col-md-8">
             <h2 class="mb-4">Tus artículos en venta</h2>
@@ -138,7 +135,6 @@
                 {% for article in user_articles %}
                 <div class="col-md-6">
                     <div class="article-card">
-                        
                         {% if article.imagenes.all %}
                             <img src="{{ article.imagenes.all.0.imagen.url }}" class="card-img-top" alt="{{ article.titulo }}">
                         {% else %}
@@ -148,7 +144,18 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ article.titulo }}</h5>
                             <p class="card-text">${{ article.precio }}</p>
-                            <button class="btn btn-warning">Marcar como vendido</button>
+
+                            <form method="post" action="{% url 'userView' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="producto_id" value="{{ article.id }}">
+                                {% if article.venta_estado == "EnVenta" %}
+                                    <input type="hidden" name="action" value="marcar_como_vendido">
+                                    <button type="submit" class="btn btn-primary">Marcar como Vendido</button>
+                                {% else %}
+                                    <input type="hidden" name="action" value="enlistar_otra_vez">
+                                    <button type="submit" class="btn btn-success">Marcar como Disponible</button>
+                                {% endif %}
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -156,16 +163,24 @@
             </div>
         </div>
 
-    <div class="col-md-4">
-        <div class="action-buttons">
-            <a href="{% url 'publish:publish' %}" class="btn btn-warning btn-lg">Publicar un artículo</a>
-
-            <button class="btn btn-light btn-lg">Lista de usuarios bloqueados</button>
-            <button class="btn btn-light btn-lg">Historial de compras</button>
-            <button class="btn btn-light btn-lg">Historial de ventas</button>
+        <div class="col-md-4">
+            <div class="action-buttons">
+                <a href="{% url 'publish:publish' %}" class="btn btn-warning btn-lg">Publicar un artículo</a>
+                <button class="btn btn-light btn-lg">Lista de usuarios bloqueados</button>
+                <button class="btn btn-light btn-lg">Historial de compras</button>
+                <button class="btn btn-light btn-lg">Historial de ventas</button>
+            </div>
         </div>
     </div>
-             
+
+    <!-- Mostrar los mensajes de éxito o error -->
+    {% if messages %}
+        <div class="alert alert-info" role="alert">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
 
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
 </body>
